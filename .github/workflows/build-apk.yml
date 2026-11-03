@@ -3,6 +3,14 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: '選擇要編譯的版本'
+        required: true
+        type: choice
+        options:
+          - old
+          - v2
 
 jobs:
   build:
@@ -24,7 +32,11 @@ jobs:
       - name: Extract project
         run: |
           mkdir source
-          unzip investment-quiz-android.zip -d source
+          if [ "${{ inputs.version }}" = "v2" ]; then
+            unzip investment-quiz-android-v2.zip -d source
+          else
+            unzip investment-quiz-android.zip -d source
+          fi
 
       - name: Build APK
         run: |
@@ -34,5 +46,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: investment-quiz-apk
+          name: investment-quiz-${{ inputs.version }}-apk
           path: source/app/build/outputs/apk/debug/app-debug.apk
